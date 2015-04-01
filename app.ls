@@ -1,28 +1,23 @@
 app =
-  storage:
-    get: -> JSON.parse localStorage.getItem 'mithril' or []
-    set: (list) !-> localStorage.setItem 'mithril', JSON.stringify list
+  get: -> JSON.parse localStorage.getItem 'mithril' or []
+  set: (list) !-> localStorage.setItem 'mithril', JSON.stringify list
 
   controller: !->
-    @list = app.storage.get! |> _.map -> new app.Item it
+    @list = app.get! |> _.map -> new app.Item it
     @allCompleted = m.prop false
-    @title = m.prop ''
-    @title.redraw = false
-    @filter = m.route.param 'filter'
+    @title = m.prop ''; @title.redraw = false
 
     @create = !~>
-      title = @title!trim!
-      if title
-        @list.push new app.Item {title}
+      if @title!trim!
+        @list.push new app.Item {title: that}
         @title ''
     @remove = (item) !~> @list.splice (@list.indexOf item), 1
 
     @edit = (item) !~>
-      item.bufferedTitle = m.prop item.title!
-      item.bufferedTitle.redraw = false
+      item.bufferedTitle = m.prop item.title!; item.bufferedTitle.redraw = false
       item.editing true
     @doneEditing = (item) !~>
-      return if not item.editing!
+      return m.redraw.strategy 'none' if not item.editing!
       item.editing false
       item.title item.bufferedTitle!trim!
       if !item.title! => @list.splice (@list.indexOf item), 1
@@ -34,12 +29,9 @@ app =
     @update = !~>
       @completed = @list |> _.filter (.completed!)
       @active = @list |> _.reject (.completed!)
-      @filtered = switch @filter
-        | 'active' => @active
-        | 'completed' => @completed
-        | otherwise => @list
+      @filtered = if m.route.param 'filter' => @[that] else @list
       @allCompleted (@completed.length is @list.length)
-      app.storage.set @list
+      app.set @list
 
     @handleEscape = !~> if it.keyCode is 27 => document.getElementById 'new-todo' .select!
     @onunload = !~> document.removeEventListener 'keyup', @handleEscape
@@ -76,9 +68,9 @@ app =
           m 'span#todo-count' a do
             m 'strong' "#{ctrl.active.length} item#{if ctrl.active.length is 1 => '' else 's'} left"
           m 'ul#filters' a do
-            m 'li' m 'a' {href: '/', config: m.route, class: {selected: not ctrl.filter}} 'All'
-            m 'li' m 'a' {href: '/active', config: m.route, class: {selected: ctrl.filter is 'active'}} 'Active'
-            m 'li' m 'a' {href: '/completed', config: m.route, class: {selected: ctrl.filter is 'completed'}} 'Completed'
+            m 'li' m 'a' {href: '/', config: m.route, class: {selected: not m.route.param 'filter'}} 'All'
+            m 'li' m 'a' {href: '/active', config: m.route, class: {selected: m.route.param 'filter' is 'active'}} 'Active'
+            m 'li' m 'a' {href: '/completed', config: m.route, class: {selected: m.route.param 'filter' is 'completed'}} 'Completed'
           if ctrl.completed.length => m 'button#clear-completed' {onclick: ctrl.clearCompleted} "Clear completed (#{ctrl.completed.length})"
 
 

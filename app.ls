@@ -51,12 +51,7 @@ app =
     a do
       m 'header#header' a do
         m 'h1' 'todos'
-        m 'input#new-todo' {
-          placeholder: 'What needs to be done?'
-          onenter: ctrl.create
-          value: ctrl.title
-          +autofocus
-        }
+        m 'input#new-todo' {placeholder: 'What needs to be done?', onenter: ctrl.create, value: ctrl.title, +autofocus}
 
       if ctrl.list.length => a do
         m 'section#main' a do

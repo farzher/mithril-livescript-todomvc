@@ -41,11 +41,13 @@ app =
       @allCompleted (@completed.length is @list.length)
       app.storage.set @list
 
+    @handleEscape = !~> if it.keyCode is 27 => document.getElementById 'new-todo' .select!
+    @onunload = !~> document.removeEventListener 'keyup', @handleEscape
+    document.addEventListener 'keyup', @handleEscape
+
 
   view: (ctrl) ->
-    console.log 'redraw'
     ctrl.update!
-
     a do
       m 'header#header' a do
         m 'h1' 'todos'
@@ -92,8 +94,5 @@ app.Item = class
     @completed = m.prop o.completed || false
     @editing = m.prop o.editing || false
 
-
 m.route.mode = 'hash'
-m.route (document.getElementById 'todoapp'), '/',
-  '/': app
-  '/:filter': app
+m.route (document.getElementById 'todoapp'), '/', {'/': app, '/:filter': app}

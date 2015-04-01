@@ -85,9 +85,17 @@ app = {
       this$.allCompleted(this$.completed.length === this$.list.length);
       app.storage.set(this$.list);
     };
+    this.handleEscape = function(it){
+      if (it.keyCode === 27) {
+        document.getElementById('new-todo').select();
+      }
+    };
+    this.onunload = function(){
+      document.removeEventListener('keyup', this$.handleEscape);
+    };
+    document.addEventListener('keyup', this.handleEscape);
   },
   view: function(ctrl){
-    console.log('redraw');
     ctrl.update();
     return a(m('header#header', a(m('h1', 'todos'), m('input#new-todo', {
       placeholder: 'What needs to be done?',

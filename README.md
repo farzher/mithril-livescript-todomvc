@@ -3,7 +3,7 @@
 ## Demo
 http://farzher.github.io/mithril-livescript-todomvc/
 
-## Possibly the smallest todomvc implementation?
+## Possibly the smallest todomvc implementation
 * **< 100 lines of code**
 * 50 lines of logic
 * 40 lines of templating markup

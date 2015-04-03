@@ -1,5 +1,5 @@
 do !->
-  arbitraryKey = 0
+  keyTrue = 0
 
   customAtts =
     onenter: (cb) !->
@@ -30,7 +30,7 @@ do !->
         @class = classes.join ' '
     key: (value) !->
       if value is true
-        @key = arbitraryKey++
+        @key = "__key:true__#{keyTrue++}"
 
   mithril = m
   window.m = (selector, atts, children) ->

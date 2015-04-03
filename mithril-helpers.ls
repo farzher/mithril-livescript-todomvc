@@ -1,4 +1,6 @@
 do !->
+  arbitraryKey = 0
+
   customAtts =
     onenter: (cb) !->
       @config = monkeypatch @config, configInit ->
@@ -26,6 +28,9 @@ do !->
       if typeof! obj is 'Object'
         classes = for key, value of obj when value => key
         @class = classes.join ' '
+    key: (value) !->
+      if value is true
+        @key = arbitraryKey++
 
   mithril = m
   window.m = (selector, atts, children) ->

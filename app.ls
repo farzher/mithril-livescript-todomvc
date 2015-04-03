@@ -1,5 +1,4 @@
 Task = (data) !->
-  @key = data.key || _.rand Number.MAX_VALUE
   @title = m.prop data.title || ''
   @completed = m.prop data.completed || false
   @editing = m.prop data.editing || false
@@ -47,7 +46,7 @@ view = (ctrl) ->
         m 'input#toggle-all[type=checkbox]' {onclick: ctrl.completeAll, checked: ctrl.allCompleted!}
         m 'ul#todo-list' a do
           ctrl.filtered.map (task) ->
-            m 'li' {task.key, class: {completed: task.completed!, editing: task.editing!}} a do
+            m 'li' {class: {completed: task.completed!, editing: task.editing!}, +key} a do
               m '.view' a do
                 m 'input.toggle[type=checkbox]' {checked: task.completed}
                 m 'label' {ondblclick: -> ctrl.edit task} task.title!

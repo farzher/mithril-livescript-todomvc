@@ -2,8 +2,10 @@
 var Task, controller, view;
 Task = function(data){
   this.title = m.prop(data.title || '');
+  this.title.redraw = false;
   this.completed = m.prop(data.completed || false);
   this.editing = m.prop(data.editing || false);
+  this.key = data.key || Date.now();
 };
 controller = function(){
   var this$ = this;
@@ -27,22 +29,18 @@ controller = function(){
     this$.tasks.splice(this$.tasks.indexOf(task), 1);
   };
   this.edit = function(task){
-    task.bufferedTitle = m.prop(task.title());
-    task.bufferedTitle.redraw = false;
+    task.oldTitle = task.title();
     task.editing(true);
   };
   this.doneEditing = function(task){
-    if (!task.editing()) {
-      return m.redraw.strategy('none');
-    }
     task.editing(false);
-    task.title(task.bufferedTitle().trim());
     if (!task.title()) {
       this$.tasks.splice(this$.tasks.indexOf(task), 1);
     }
   };
   this.cancelEditing = function(task){
     task.editing(false);
+    task.title(task.oldTitle);
   };
   this.completeAll = function(){
     var i$, ref$, len$, task;
@@ -90,7 +88,7 @@ view = function(ctrl){
         completed: task.completed(),
         editing: task.editing()
       },
-      key: true
+      key: task.key
     }, a(m('.view', a(m('input.toggle[type=checkbox]', {
       checked: task.completed
     }), m('label', {
@@ -101,8 +99,8 @@ view = function(ctrl){
       onclick: function(){
         return ctrl.remove(task);
       }
-    }))), task.editing() ? m('input.edit', {
-      value: task.bufferedTitle,
+    }))), m('input.edit', {
+      value: task.title,
       onenter: function(){
         return ctrl.doneEditing(task);
       },
@@ -112,10 +110,10 @@ view = function(ctrl){
       onblur: function(){
         return ctrl.doneEditing(task);
       },
-      config: configInit(function(it){
+      config: function(it){
         it.select();
-      })
-    }) : void 8));
+      }
+    })));
   }))))), m('footer#footer', a(m('span#todo-count', a(m('strong', ctrl.active.length + " task" + (ctrl.active.length === 1 ? '' : 's') + " left"))), m('ul#filters', a(m('li', m('a', {
     href: '/',
     config: m.route,

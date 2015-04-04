@@ -1,12 +1,13 @@
 Task = (data) !->
-  @title = m.prop data.title || ''
+  @title = m.prop data.title || ''; @title.redraw = false # Gotta go fast
   @completed = m.prop data.completed || false
   @editing = m.prop data.editing || false
+  @key = data.key || Date.now! # Unique ID for elements
 
 controller = !->
   @tasks = (JSON.parse localStorage.getItem 'mithril' or []) |> _.map -> new Task it
   @allCompleted = m.prop false
-  @title = m.prop ''; @title.redraw = false
+  @title = m.prop ''; @title.redraw = false # Gotta go fast
 
   @create = !~>
     if @title!trim!
@@ -15,14 +16,13 @@ controller = !->
   @remove = (task) !~> @tasks.splice (@tasks.indexOf task), 1
 
   @edit = (task) !~>
-    task.bufferedTitle = m.prop task.title!; task.bufferedTitle.redraw = false
+    task.oldTitle = task.title!
     task.editing true
   @doneEditing = (task) !~>
-    return m.redraw.strategy 'none' if not task.editing!
+    # return m.redraw.strategy 'none' if not task.editing!
     task.editing false
-    task.title task.bufferedTitle!trim!
     if !task.title! => @tasks.splice (@tasks.indexOf task), 1
-  @cancelEditing = (task) !~> task.editing false
+  @cancelEditing = (task) !~> task.editing false; task.title task.oldTitle
 
   @completeAll = !~> for task in @tasks => task.completed not @allCompleted!
   @clearCompleted = !~> @tasks = @tasks |> _.reject (.completed!)
@@ -46,19 +46,17 @@ view = (ctrl) ->
         m 'input#toggle-all[type=checkbox]' {onclick: ctrl.completeAll, checked: ctrl.allCompleted!}
         m 'ul#todo-list' a do
           ctrl.filtered.map (task) ->
-            m 'li' {class: {completed: task.completed!, editing: task.editing!}, +key} a do
+            m 'li' {class: {completed: task.completed!, editing: task.editing!}, task.key} a do
               m '.view' a do
                 m 'input.toggle[type=checkbox]' {checked: task.completed}
                 m 'label' {ondblclick: -> ctrl.edit task} task.title!
                 m 'button.destroy' {onclick: -> ctrl.remove task}
-              if task.editing!
-                m 'input.edit' {
-                  value: task.bufferedTitle
-                  onenter: -> ctrl.doneEditing task
-                  onescape: -> ctrl.cancelEditing task
-                  onblur: -> ctrl.doneEditing task
-                  config: configInit !-> it.select!
-                }
+              m 'input.edit' do
+                value: task.title
+                onenter: -> ctrl.doneEditing task
+                onescape: -> ctrl.cancelEditing task
+                onblur: -> ctrl.doneEditing task
+                config: !-> it.select!
 
       m 'footer#footer' a do
         m 'span#todo-count' a do

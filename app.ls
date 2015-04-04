@@ -19,7 +19,6 @@ controller = !->
     task.oldTitle = task.title!
     task.editing true
   @doneEditing = (task) !~>
-    # return m.redraw.strategy 'none' if not task.editing!
     task.editing false
     if !task.title! => @tasks.splice (@tasks.indexOf task), 1
   @cancelEditing = (task) !~> task.editing false; task.title task.oldTitle

@@ -29,18 +29,18 @@ controller = function(){
     this$.tasks.splice(this$.tasks.indexOf(task), 1);
   };
   this.edit = function(task){
-    task.oldTitle = task.title();
     task.editing(true);
+    task.oldTitle = task.title();
+  };
+  this.cancelEditing = function(task){
+    task.editing(false);
+    task.title(task.oldTitle);
   };
   this.doneEditing = function(task){
     task.editing(false);
     if (!task.title()) {
       this$.tasks.splice(this$.tasks.indexOf(task), 1);
     }
-  };
-  this.cancelEditing = function(task){
-    task.editing(false);
-    task.title(task.oldTitle);
   };
   this.completeAll = function(){
     var i$, ref$, len$, task;
@@ -79,10 +79,10 @@ view = function(ctrl){
     onenter: ctrl.create,
     value: ctrl.title,
     autofocus: true
-  }))), ctrl.tasks.length ? a(m('section#main', a(m('input#toggle-all[type=checkbox]', {
+  }))), ctrl.tasks.length ? m('section#main', a(m('input#toggle-all[type=checkbox]', {
     onclick: ctrl.completeAll,
     checked: ctrl.allCompleted()
-  }), m('ul#todo-list', a(ctrl.filtered.map(function(task){
+  }), m('ul#todo-list', ctrl.filtered.map(function(task){
     return m('li', {
       'class': {
         completed: task.completed(),
@@ -114,7 +114,7 @@ view = function(ctrl){
         it.select();
       }
     })));
-  }))))), m('footer#footer', a(m('span#todo-count', a(m('strong', ctrl.active.length + " task" + (ctrl.active.length === 1 ? '' : 's') + " left"))), m('ul#filters', a(m('li', m('a', {
+  })), m('footer#footer', a(m('span#todo-count', m('strong', ctrl.active.length + " task" + (ctrl.active.length === 1 ? '' : 's') + " left")), m('ul#filters', a(m('li', m('a', {
     href: '/',
     config: m.route,
     'class': {
@@ -134,7 +134,7 @@ view = function(ctrl){
     }
   }, 'Completed')))), ctrl.completed.length ? m('button#clear-completed', {
     onclick: ctrl.clearCompleted
-  }, "Clear completed (" + ctrl.completed.length + ")") : void 8))) : void 8);
+  }, "Clear completed") : void 8)))) : void 8);
 };
 m.route.mode = 'hash';
 m.route(document.getElementById('todoapp'), '/', {

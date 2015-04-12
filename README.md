@@ -11,4 +11,4 @@ http://farzher.github.io/mithril-livescript-todomvc/
 
 
 ### Source with syntax highlighting
-![](http://i.imgur.com/V6WYKNa.png)
+![](http://i.imgur.com/9IBLkB0.png)

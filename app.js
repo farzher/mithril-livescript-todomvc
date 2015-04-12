@@ -136,7 +136,6 @@ view = function(ctrl){
     onclick: ctrl.clearCompleted
   }, "Clear completed") : void 8)))) : void 8);
 };
-m.route.mode = 'hash';
 m.route(document.getElementById('todoapp'), '/', {
   '/': {
     controller: controller,

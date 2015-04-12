@@ -5,7 +5,7 @@ Task = (data) !->
   @key = data.key || Date.now! # Unique ID for elements
 
 controller = !->
-  @tasks = (JSON.parse localStorage.getItem 'mithril' or []) |> _.map -> new Task it
+  @tasks = JSON.parse localStorage.getItem 'mithril' or [] |> _.map -> new Task it
   @allCompleted = m.prop false
   @title = m.prop ''; @title.redraw = false # Gotta go fast
 
@@ -56,5 +56,4 @@ view = (ctrl) ->
           m 'li' m 'a' {href: '/completed', config: m.route, class: {selected: m.route.param 'filter' is 'completed'}} 'Completed'
         if ctrl.completed.length => m 'button#clear-completed' {onclick: ctrl.clearCompleted} "Clear completed"
 
-m.route.mode = 'hash'
 m.route (document.getElementById 'todoapp'), '/', {'/': {controller, view}, '/:filter': {controller, view}}

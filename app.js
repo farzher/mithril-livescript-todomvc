@@ -12,7 +12,10 @@ controller = function(){
   this.tasks = _.map(function(it){
     return new Task(it);
   })(
-  JSON.parse(localStorage.getItem('mithril')) || []);
+  JSON.parse(localStorage.getItem('m')) || [{
+    title: 'Smallest TodoMVC',
+    completed: true
+  }]);
   this.allCompleted = m.prop(false);
   this.title = m.prop('');
   this.title.redraw = false;
@@ -69,13 +72,12 @@ controller = function(){
       ? this$[that]
       : this$.tasks;
     this$.allCompleted(this$.completed.length === this$.tasks.length);
-    localStorage.setItem('mithril', JSON.stringify(this$.tasks));
+    localStorage.setItem('m', JSON.stringify(this$.tasks));
   };
 };
 view = function(ctrl){
   ctrl.update();
-  return a(m('header#header', a(m('h1', 'todos'), m('input#new-todo', {
-    placeholder: 'What needs to be done?',
+  return a(m('header#header', a(m('h1', 'todos'), m('input#new-todo[placeholder=What needs to be done?]', {
     onenter: ctrl.create,
     value: ctrl.title,
     autofocus: true
@@ -101,17 +103,17 @@ view = function(ctrl){
       }
     }))), m('input.edit', {
       value: task.title,
+      config: function(it){
+        return it.select();
+      },
+      onblur: function(){
+        return ctrl.doneEditing(task);
+      },
       onenter: function(){
         return ctrl.doneEditing(task);
       },
       onescape: function(){
         return ctrl.cancelEditing(task);
-      },
-      onblur: function(){
-        return ctrl.doneEditing(task);
-      },
-      config: function(it){
-        it.select();
       }
     })));
   })), m('footer#footer', a(m('span#todo-count', m('strong', ctrl.active.length + " task" + (ctrl.active.length === 1 ? '' : 's') + " left")), m('ul#filters', a(m('li', m('a', {
@@ -134,7 +136,7 @@ view = function(ctrl){
     }
   }, 'Completed')))), ctrl.completed.length ? m('button#clear-completed', {
     onclick: ctrl.clearCompleted
-  }, "Clear completed") : void 8)))) : void 8);
+  }, 'Clear completed') : void 8)))) : void 8);
 };
 m.route(document.getElementById('todoapp'), '/', {
   '/': {

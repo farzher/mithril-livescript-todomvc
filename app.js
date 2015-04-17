@@ -5,7 +5,7 @@ Item = function(data){
   this.title.redraw = false;
   this.completed = m.prop(data.completed || false);
   this.editing = m.prop(data.editing || false);
-  this.key = data.key || Date.now();
+  return this.key = data.key || Date.now();
 };
 controller = function(){
   var this$ = this;
@@ -17,42 +17,42 @@ controller = function(){
   }]);
   this.allCompleted = m.prop(false);
   this.title = m.prop('');
-  this.title.redraw = false;
   this.create = function(){
     var that;
     if (that = this$.title().trim()) {
       this$.items.push(new Item({
         title: that
       }));
-      this$.title('');
+      return this$.title('');
     }
   };
   this.remove = function(it){
-    this$.items.splice(this$.items.indexOf(it), 1);
+    return this$.items.splice(this$.items.indexOf(it), 1);
   };
   this.edit = function(it){
     it.editing(true);
-    it.oldTitle = it.title();
+    return it.oldTitle = it.title();
   };
   this.cancel = function(it){
     it.editing(false);
-    it.title(it.oldTitle);
+    return it.title(it.oldTitle);
   };
   this.save = function(it){
     it.editing(false);
     if (!it.title().trim()) {
-      this$.items.splice(this$.items.indexOf(it), 1);
+      return this$.items.splice(this$.items.indexOf(it), 1);
     }
   };
   this.completeAll = function(it){
-    var i$, ref$, len$;
+    var i$, ref$, len$, results$ = [];
     for (i$ = 0, len$ = (ref$ = this$.items).length; i$ < len$; ++i$) {
       it = ref$[i$];
-      it.completed(!this$.allCompleted());
+      results$.push(it.completed(!this$.allCompleted()));
     }
+    return results$;
   };
   this.clearCompleted = function(){
-    this$.items = _.reject(function(it){
+    return this$.items = _.reject(function(it){
       return it.completed();
     }, this$.items);
   };
@@ -68,7 +68,7 @@ controller = function(){
       ? this$[that]
       : this$.items;
     this$.allCompleted(this$.completed.length === this$.items.length);
-    localStorage.m = JSON.stringify(this$.items);
+    return localStorage.m = JSON.stringify(this$.items);
   };
 };
 view = function(c){

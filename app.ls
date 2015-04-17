@@ -1,4 +1,4 @@
-Item = (data) !->
+Item = (data) ->
   @title = m.prop data.title || ''; @title.redraw = false
   @completed = m.prop data.completed || false
   @editing = m.prop data.editing || false
@@ -7,19 +7,19 @@ Item = (data) !->
 controller = !->
   @items = JSON.parse localStorage.getItem \m or [title: 'Smallest TodoMVC'] |> _.map -> new Item it
   @allCompleted = m.prop false
-  @title = m.prop ''; @title.redraw = false
+  @title = m.prop ''
 
-  @create = !~> if @title!trim! => @items.push new Item {title: that}; @title ''
-  @remove = !~> @items.splice (@items.indexOf it), 1
+  @create = ~> if @title!trim! => @items.push new Item {title: that}; @title ''
+  @remove = ~> @items.splice (@items.indexOf it), 1
 
-  @edit = !~> it.editing true; it.oldTitle = it.title!
-  @cancel = !~> it.editing false; it.title it.oldTitle
-  @save = !~> it.editing false; if !it.title!trim! => @items.splice (@items.indexOf it), 1
+  @edit = ~> it.editing true; it.oldTitle = it.title!
+  @cancel = ~> it.editing false; it.title it.oldTitle
+  @save = ~> it.editing false; if !it.title!trim! => @items.splice (@items.indexOf it), 1
 
-  @completeAll = !~> for it in @items => it.completed not @allCompleted!
-  @clearCompleted = !~> @items = _.reject (.completed!), @items
+  @completeAll = ~> for it in @items => it.completed not @allCompleted!
+  @clearCompleted = ~> @items = _.reject (.completed!), @items
 
-  @update = !~>
+  @update = ~>
     @completed = _.filter (.completed!), @items
     @active = _.reject (.completed!), @items
     @filtered = if m.route.param \filter => @[that] else @items
@@ -57,4 +57,3 @@ view = (c) ->
         if c.completed.length => m \button#clear-completed {onclick: c.clearCompleted} 'Clear completed'
 
 m.route (document.getElementById \todoapp), '/', {'/': {controller, view}, '/:filter': {controller, view}}
-

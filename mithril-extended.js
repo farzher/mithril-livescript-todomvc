@@ -5,6 +5,7 @@ var toString$ = {}.toString;
   keyTrue = 0;
   customAtts = {
     onenter: function(cb){
+      delete this.onenter;
       this.config = monkeypatch(this.config, configInit(function(it){
         return it.addEventListener('keyup', function(e){
           if (e.keyCode === 13) {
@@ -15,6 +16,7 @@ var toString$ = {}.toString;
       }));
     },
     onescape: function(cb){
+      delete this.onescape;
       this.config = monkeypatch(this.config, configInit(function(it){
         return it.addEventListener('keyup', function(e){
           if (e.keyCode === 27) {
@@ -29,6 +31,10 @@ var toString$ = {}.toString;
         this.value = prop();
         this.config = monkeypatch(this.config, configInit(function(it){
           return it.addEventListener('input', multi(m.withAttr('value', prop), function(){
+            var that;
+            if (that = prop.filter) {
+              prop(that(prop()));
+            }
             if (prop.redraw !== false) {
               m.redraw();
             }
@@ -66,6 +72,10 @@ var toString$ = {}.toString;
       if (value === true) {
         this.key = "__key:true__" + (keyTrue++);
       }
+    },
+    init: function(cb){
+      delete this.init;
+      this.config = monkeypatch(this.config, configInit(cb));
     }
   };
   mithril = m;
@@ -91,4 +101,5 @@ var toString$ = {}.toString;
   };
   function monkeypatch(n,t){return function(){var o,u;return"function"==typeof n&&(o=n.apply(this,arguments)),"function"==typeof t&&(u=t.apply(this,arguments)),o===!1||u===!1?!1:void 0}}
   window.multi=function(){var n=Array.prototype.slice;return function(){var t=n.call(arguments);return function(){var r=n.call(arguments),a=this;t.map(function(n){n instanceof Function&&n.apply(a,r)})}}}();
+  !function(e){"undefined"!=typeof module&&module.exports?module.exports=e:"function"==typeof define&&define.amd?define(e):this.m=e(this.m)}(function(e){function t(t){return function(o,r){var n={method:t.toUpperCase(),url:o.toString()};for(var u in r)r.hasOwnProperty(u)&&(n[u]=r[u]);return e.request(n)}}var o=["get","post","put","head","delete","options","trace","copy","lock","mkcol","move","purge","propfind","proppatch","unlock","report","mkactivity","checkout","merge","notify","subscribe","unsubscribe","patch","search","connect"];for(var r in o)e.request[o[r]]=t(o[r]);return e});
 })();

@@ -1,60 +1,60 @@
-Task = (data) !->
-  @title = m.prop data.title || ''; @title.redraw = false # Gotta go fast
+Item = (data) !->
+  @title = m.prop data.title || ''; @title.redraw = false
   @completed = m.prop data.completed || false
   @editing = m.prop data.editing || false
-  @key = data.key || Date.now! # Unique ID for elements
+  @key = data.key || Date.now!
 
 controller = !->
-  @tasks = JSON.parse localStorage.getItem \m or [{title: 'Smallest TodoMVC', +completed}] |> _.map -> new Task it
+  @items = JSON.parse localStorage.getItem \m or [title: 'Smallest TodoMVC'] |> _.map -> new Item it
   @allCompleted = m.prop false
-  @title = m.prop ''; @title.redraw = false # Gotta go fast
+  @title = m.prop ''; @title.redraw = false
 
-  @create = !~> if @title!trim! => @tasks.push new Task {title: that}; @title ''
-  @remove = (task) !~> @tasks.splice (@tasks.indexOf task), 1
+  @create = !~> if @title!trim! => @items.push new Item {title: that}; @title ''
+  @remove = !~> @items.splice (@items.indexOf it), 1
 
-  @edit = (task) !~> task.editing true; task.oldTitle = task.title!
-  @cancelEditing = (task) !~> task.editing false; task.title task.oldTitle
-  @doneEditing = (task) !~> task.editing false; if !task.title! => @tasks.splice (@tasks.indexOf task), 1
+  @edit = !~> it.editing true; it.oldTitle = it.title!
+  @cancel = !~> it.editing false; it.title it.oldTitle
+  @save = !~> it.editing false; if !it.title!trim! => @items.splice (@items.indexOf it), 1
 
-  @completeAll = !~> for task in @tasks => task.completed not @allCompleted!
-  @clearCompleted = !~> @tasks = @tasks |> _.reject (.completed!)
+  @completeAll = !~> for it in @items => it.completed not @allCompleted!
+  @clearCompleted = !~> @items = _.reject (.completed!), @items
 
   @update = !~>
-    @completed = @tasks |> _.filter (.completed!)
-    @active = @tasks |> _.reject (.completed!)
-    @filtered = if m.route.param \filter => @[that] else @tasks
-    @allCompleted (@completed.length is @tasks.length)
-    localStorage.setItem \m, JSON.stringify @tasks
+    @completed = _.filter (.completed!), @items
+    @active = _.reject (.completed!), @items
+    @filtered = if m.route.param \filter => @[that] else @items
+    @allCompleted (@completed.length is @items.length)
+    localStorage.m = JSON.stringify @items
 
-view = (ctrl) ->
-  ctrl.update!
+view = (c) ->
+  c.update!
   a do
     m \header#header a do
       m \h1 \todos
-      m 'input#new-todo[placeholder=What needs to be done?]' {onenter: ctrl.create, value: ctrl.title, +autofocus}
+      m 'input#new-todo[placeholder=What needs to be done?]' {onenter: c.create, value: c.title, +autofocus}
 
-    if ctrl.tasks.length => m \section#main a do
-      m 'input#toggle-all[type=checkbox]' {onclick: ctrl.completeAll, checked: ctrl.allCompleted!}
-      m \ul#todo-list ctrl.filtered.map (task) ->
-        m \li {class: {completed: task.completed!, editing: task.editing!}, task.key} a do
+    if c.items.length => m \section#main a do
+      m 'input#toggle-all[type=checkbox]' {onclick: c.completeAll, checked: c.allCompleted!}
+      m \ul#todo-list c.filtered.map (item) ->
+        m \li {class: {completed: item.completed!, editing: item.editing!}, item.key} a do
           m \.view a do
-            m 'input.toggle[type=checkbox]' {checked: task.completed}
-            m \label {ondblclick: -> ctrl.edit task} task.title!
-            m \button.destroy {onclick: -> ctrl.remove task}
+            m 'input.toggle[type=checkbox]' {checked: item.completed}
+            m \label {ondblclick: -> c.edit item} item.title!
+            m \button.destroy {onclick: -> c.remove item}
           m \input.edit do
-            value: task.title
+            value: item.title
             config: (.select!)
-            onblur: -> ctrl.doneEditing task
-            onenter: -> ctrl.doneEditing task
-            onescape: -> ctrl.cancelEditing task
+            onblur: -> c.save item
+            onenter: -> c.save item
+            onescape: -> c.cancel item
 
       m \footer#footer a do
-        m \span#todo-count m \strong "#{ctrl.active.length} task#{if ctrl.active.length is 1 => '' else 's'} left"
+        m \span#todo-count m \strong "#{c.active.length} item#{if c.active.length is 1 => '' else 's'} left"
         m \ul#filters a do
           m \li m \a {href: '/', config: m.route, class: {selected: not m.route.param \filter}} \All
           m \li m \a {href: '/active', config: m.route, class: {selected: m.route.param \filter is \active}} \Active
           m \li m \a {href: '/completed', config: m.route, class: {selected: m.route.param \filter is \completed}} \Completed
-        if ctrl.completed.length => m \button#clear-completed {onclick: ctrl.clearCompleted} 'Clear completed'
+        if c.completed.length => m \button#clear-completed {onclick: c.clearCompleted} 'Clear completed'
 
-m.route (document.getElementById 'todoapp'), '/', {'/': {controller, view}, '/:filter': {controller, view}}
+m.route (document.getElementById \todoapp), '/', {'/': {controller, view}, '/:filter': {controller, view}}
 

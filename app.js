@@ -12,10 +12,11 @@ Item = function(data){
 };
 controller = function(){
   var this$ = this;
-  this.items = _.map(Item, JSON.parse(localStorage.getItem('m'))) || [{
+  this.items = _.map(Item)(
+  JSON.parse(localStorage.getItem('m')) || [{
     title: 'Smallest TodoMVC',
     completed: true
-  }];
+  }]);
   this.allCompleted = m.prop(false);
   this.title = m.prop('');
   this.create = function(){

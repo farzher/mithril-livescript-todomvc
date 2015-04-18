@@ -5,7 +5,7 @@ Item = (data) ->
   key: data.key || Date.now!
 
 controller = !->
-  @items = _.map Item, JSON.parse localStorage.getItem \m or [{title: 'Smallest TodoMVC', +completed}]
+  @items = JSON.parse localStorage.getItem \m or [{title: 'Smallest TodoMVC', +completed}] |> _.map Item
   @allCompleted = m.prop false
   @title = m.prop ''
 

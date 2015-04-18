@@ -1,22 +1,22 @@
 Item = (data) ->
-  @title = m.prop data.title || ''; @title.redraw = false
-  @completed = m.prop data.completed || false
-  @editing = m.prop data.editing || false
-  @key = data.key || Date.now!
+  title: m.prop data.title || '', {-redraw}
+  completed: m.prop data.completed || false
+  editing: m.prop data.editing || false
+  key: data.key || Date.now!
 
 controller = !->
-  @items = JSON.parse localStorage.getItem \m or [title: 'Smallest TodoMVC'] |> _.map -> new Item it
+  @items = _.map Item, JSON.parse localStorage.getItem \m or [{title: 'Smallest TodoMVC', +completed}]
   @allCompleted = m.prop false
   @title = m.prop ''
 
-  @create = ~> if @title!trim! => @items.push new Item {title: that}; @title ''
+  @create = ~> if @title!trim! => @items.push Item {title: that}; @title ''
   @remove = ~> @items.splice (@items.indexOf it), 1
 
   @edit = ~> it.editing true; it.oldTitle = it.title!
   @cancel = ~> it.editing false; it.title it.oldTitle
   @save = ~> it.editing false; if !it.title!trim! => @items.splice (@items.indexOf it), 1
 
-  @completeAll = ~> for it in @items => it.completed not @allCompleted!
+  @completeAll = ~> for item in @items => item.completed not @allCompleted!
   @clearCompleted = ~> @items = _.reject (.completed!), @items
 
   @update = ~>
@@ -29,8 +29,7 @@ controller = !->
 view = (c) ->
   c.update!
   a do
-    m \header#header a do
-      m \h1 \todos
+    m \header#header m \h1 \todos
       m 'input#new-todo[placeholder=What needs to be done?]' {onenter: c.create, value: c.title, +autofocus}
 
     if c.items.length => m \section#main a do

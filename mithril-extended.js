@@ -92,6 +92,23 @@ var toString$ = {}.toString;
     return mithril(selector, atts, children);
   };
   m.__proto__ = mithril;
+  m.prop = function(store, options){
+    var prop;
+    prop = function(it){
+      if (arguments.length) {
+        store = it;
+      }
+      return store;
+    };
+    prop.toJSON = function(){
+      return store;
+    };
+    if (options) {
+      import$(prop, options);
+    }
+    return prop;
+  };
+  m.route.mode = 'hash';
   window.configInit = function(f){
     return function(ele, init){
       if (!init) {
@@ -103,3 +120,8 @@ var toString$ = {}.toString;
   window.multi=function(){var n=Array.prototype.slice;return function(){var t=n.call(arguments);return function(){var r=n.call(arguments),a=this;t.map(function(n){n instanceof Function&&n.apply(a,r)})}}}();
   !function(e){"undefined"!=typeof module&&module.exports?module.exports=e:"function"==typeof define&&define.amd?define(e):this.m=e(this.m)}(function(e){function t(t){return function(o,r){var n={method:t.toUpperCase(),url:o.toString()};for(var u in r)r.hasOwnProperty(u)&&(n[u]=r[u]);return e.request(n)}}var o=["get","post","put","head","delete","options","trace","copy","lock","mkcol","move","purge","propfind","proppatch","unlock","report","mkactivity","checkout","merge","notify","subscribe","unsubscribe","patch","search","connect"];for(var r in o)e.request[o[r]]=t(o[r]);return e});
 })();
+function import$(obj, src){
+  var own = {}.hasOwnProperty;
+  for (var key in src) if (own.call(src, key)) obj[key] = src[key];
+  return obj;
+}

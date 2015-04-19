@@ -6,7 +6,6 @@ Item = function(data){
       redraw: false
     }),
     completed: m.prop(data.completed || false),
-    editing: m.prop(data.editing || false),
     key: data.key || Date.now()
   };
 };
@@ -32,17 +31,16 @@ controller = function(){
     return this$.items.splice(this$.items.indexOf(it), 1);
   };
   this.edit = function(it){
-    it.editing(true);
     return it.oldTitle = it.title();
   };
   this.cancel = function(it){
-    it.editing(false);
-    return it.title(it.oldTitle);
+    it.title(it.oldTitle);
+    return it.oldTitle = '';
   };
   this.save = function(it){
-    it.editing(false);
+    it.oldTitle = '';
     if (!it.title().trim()) {
-      return this$.items.splice(this$.items.indexOf(it), 1);
+      return this$.remove(it);
     }
   };
   this.completeAll = function(){
@@ -86,7 +84,7 @@ view = function(c){
     return m('li', {
       'class': {
         completed: item.completed(),
-        editing: item.editing()
+        editing: item.oldTitle
       },
       key: item.key
     }, a(m('.view', a(m('input.toggle[type=checkbox]', {

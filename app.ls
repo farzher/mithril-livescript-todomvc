@@ -1,7 +1,6 @@
 Item = (data) ->
   title: m.prop data.title || '', {-redraw}
   completed: m.prop data.completed || false
-  editing: m.prop data.editing || false
   key: data.key || Date.now!
 
 controller = !->
@@ -12,9 +11,9 @@ controller = !->
   @create = ~> if @title!trim! => @items.push Item {title: that}; @title ''
   @remove = ~> @items.splice (@items.indexOf it), 1
 
-  @edit = ~> it.editing true; it.oldTitle = it.title!
-  @cancel = ~> it.editing false; it.title it.oldTitle
-  @save = ~> it.editing false; if !it.title!trim! => @items.splice (@items.indexOf it), 1
+  @edit = ~> it.oldTitle = it.title!
+  @cancel = ~> it.title it.oldTitle; it.oldTitle = ''
+  @save = ~> it.oldTitle = ''; if !it.title!trim! => @remove it
 
   @completeAll = ~> for item in @items => item.completed not @allCompleted!
   @clearCompleted = ~> @items = _.reject (.completed!), @items
@@ -30,12 +29,12 @@ view = (c) ->
   c.update!
   a do
     m \header#header m \h1 \todos
-      m 'input#new-todo[placeholder=What needs to be done?]' {onenter: c.create, value: c.title, +autofocus}
+    m 'input#new-todo[placeholder=What needs to be done?]' {onenter: c.create, value: c.title, +autofocus}
 
     if c.items.length => m \section#main a do
       m 'input#toggle-all[type=checkbox]' {onclick: c.completeAll, checked: c.allCompleted!}
       m \ul#todo-list c.filtered.map (item) ->
-        m \li {class: {completed: item.completed!, editing: item.editing!}, item.key} a do
+        m \li {class: {completed: item.completed!, editing: item.oldTitle}, item.key} a do
           m \.view a do
             m 'input.toggle[type=checkbox]' {checked: item.completed}
             m \label {ondblclick: -> c.edit item} item.title!
